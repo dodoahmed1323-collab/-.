@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>حاسبة تقسيم فلوس القسم</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Cairo,sans-serif;
+}
+
+body{
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+padding:20px;
+}
+
+.container{
+background:white;
+width:420px;
+max-width:100%;
+padding:30px;
+border-radius:20px;
+box-shadow:0 15px 35px rgba(0,0,0,.3);
+}
+
+h1{
+text-align:center;
+margin-bottom:25px;
+color:#14532d;
+}
+
+label{
+display:block;
+margin-top:15px;
+margin-bottom:5px;
+font-weight:bold;
+}
+
+input{
+width:100%;
+padding:12px;
+font-size:18px;
+border-radius:10px;
+border:2px solid #ddd;
+}
+
+button{
+width:100%;
+margin-top:25px;
+padding:15px;
+font-size:20px;
+background:#16a34a;
+color:white;
+border:none;
+border-radius:12px;
+cursor:pointer;
+transition:.3s;
+}
+
+button:hover{
+background:#15803d;
+}
+
+.result{
+margin-top:25px;
+padding:15px;
+background:#ecfdf5;
+border-radius:15px;
+display:none;
+}
+
+.result p{
+margin:10px 0;
+font-size:18px;
+line-height:2;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>حاسبة تقسيم فلوس القسم</h1>
+
+<label>نصيب المزارع</label>
+<input id="farmer" placeholder="مثال: 1/2 أو 0.5">
+
+<label>إجمالي الربح</label>
+<input type="number" id="profit">
+
+<label>خصومات البنك الزراعي</label>
+<input type="number" id="bank">
+
+<label>عدد الأولاد</label>
+<input type="number" id="boys">
+
+<label>عدد البنات</label>
+<input type="number" id="girls">
+
+<button onclick="calculate()">احسب</button>
+
+<div class="result" id="result">
+
+<p><b>صافي الربح:</b> <span id="net"></span></p>
+
+<p><b>نصيب المزارع:</b> <span id="farmerShare"></span></p>
+
+<p><b>المتبقي للشركاء:</b> <span id="remain"></span></p>
+
+<p><b>نصيب كل ولد:</b> <span id="boyShare"></span></p>
+
+<p><b>نصيب كل بنت:</b> <span id="girlShare"></span></p>
+
+</div>
+
+</div>
+
+<script>
+
+function parseFraction(value){
+
+value=value.trim();
+
+if(value.includes("/")){
+let parts=value.split("/");
+return Number(parts[0])/Number(parts[1]);
+}
+
+return Number(value);
+
+}
+
+function calculate(){
+
+let farmer=parseFraction(document.getElementById("farmer").value);
+
+let profit=Number(document.getElementById("profit").value);
+
+let bank=Number(document.getElementById("bank").value);
+
+let boys=Number(document.getElementById("boys").value);
+
+let girls=Number(document.getElementById("girls").value);
+
+if(
+isNaN(farmer)||
+isNaN(profit)||
+isNaN(bank)||
+isNaN(boys)||
+isNaN(girls)
+){
+
+alert("يرجى إدخال جميع البيانات بشكل صحيح");
+
+return;
+
+}
+
+if(boys==0 && girls==0){
+
+alert("يجب إدخال ولد أو بنت على الأقل");
+
+return;
+
+}
+
+let net=profit-bank;
+
+let farmerMoney=net*farmer;
+
+let remain=net-farmerMoney;
+
+let totalShares=(boys*2)+girls;
+
+let shareValue=remain/totalShares;
+
+let boyShare=shareValue*2;
+
+let girlShare=shareValue;
+
+document.getElementById("net").innerHTML=net.toFixed(2)+" جنيه";
+
+document.getElementById("farmerShare").innerHTML=farmerMoney.toFixed(2)+" جنيه";
+
+document.getElementById("remain").innerHTML=remain.toFixed(2)+" جنيه";
+
+document.getElementById("boyShare").innerHTML=boyShare.toFixed(2)+" جنيه";
+
+document.getElementById("girlShare").innerHTML=girlShare.toFixed(2)+" جنيه";
+
+document.getElementById("result").style.display="block";
+
+}
+
+</script>
+
+</body>
+</html>
