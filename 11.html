@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>حاسبة تقسيم الأرباح الزراعية</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Cairo',sans-serif;
+
+}
+
+body{
+
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+padding:20px;
+
+}
+
+.container{
+
+max-width:700px;
+margin:auto;
+background:#fff;
+padding:30px;
+border-radius:20px;
+box-shadow:0 15px 35px rgba(0,0,0,.3);
+
+}
+
+h1{
+
+text-align:center;
+color:#166534;
+margin-bottom:25px;
+
+}
+
+label{
+
+display:block;
+margin-top:15px;
+margin-bottom:6px;
+font-weight:bold;
+
+}
+
+input{
+
+width:100%;
+padding:12px;
+border-radius:10px;
+border:2px solid #ddd;
+font-size:18px;
+
+}
+
+input:focus{
+
+outline:none;
+border-color:#16a34a;
+
+}
+
+.farmer{
+
+background:#f8fafc;
+padding:15px;
+border-radius:15px;
+margin-bottom:15px;
+border:1px solid #ddd;
+
+}
+
+.row{
+
+display:flex;
+gap:10px;
+
+}
+
+.row input{
+
+flex:1;
+
+}
+
+button{
+
+padding:12px 20px;
+border:none;
+border-radius:10px;
+font-size:18px;
+cursor:pointer;
+transition:.3s;
+
+}
+
+.green{
+
+background:#16a34a;
+color:#fff;
+
+}
+
+.green:hover{
+
+background:#15803d;
+
+}
+
+.blue{
+
+background:#2563eb;
+color:white;
+
+}
+
+.red{
+
+background:#dc2626;
+color:white;
+
+}
+
+.gray{
+
+background:#475569;
+color:white;
+
+}
+
+.actions{
+
+display:flex;
+gap:10px;
+margin-top:20px;
+flex-wrap:wrap;
+
+}
+
+.result{
+
+display:none;
+margin-top:25px;
+background:#ecfdf5;
+padding:20px;
+border-radius:15px;
+
+}
+
+.result table{
+
+width:100%;
+border-collapse:collapse;
+
+}
+
+.result td{
+
+padding:10px;
+border-bottom:1px solid #ddd;
+font-size:18px;
+
+}
+
+.footer{
+
+margin-top:20px;
+text-align:center;
+color:#777;
+
+}
+
+@media(max-width:650px){
+
+.row{
+
+flex-direction:column;
+
+}
+
+.actions{
+
+flex-direction:column;
+
+}
+
+button{
+
+width:100%;
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>
+
+حاسبة تقسيم الأرباح الزراعية
+
+</h1>
+
+<div id="farmers"><div class="farmer">
+
+<label>المزارع الأول</label>
+
+<div class="row">
+
+<input
+class="percent"
+placeholder="النسبة (50% أو 1/2 أو 0.5)">
+
+<input
+class="fixed"
+placeholder="مبلغ ثابت (اختياري)">
+
+</div>
+
+</div>
+
+</div>
+
+<button
+class="blue"
+onclick="addFarmer()">
+
+➕ إضافة مزارع
+
+</button>
+
+<label>
+
+إجمالي الربح
+
+</label>
+
+<input
+id="profit"
+placeholder="مثال : 200000">
+
+<label>
+
+جميع الخصومات والمصاريف
+
+</label>
+
+<input
+id="expenses"
+placeholder="مثال : 500+250-100">
+
+<label>
+
+عدد الأولاد
+
+</label>
+
+<input
+id="boys"
+type="number"
+placeholder="مثال : 4">
+
+<label>
+
+عدد البنات
+
+</label>
+
+<input
+id="girls"
+type="number"
+placeholder="مثال : 3">
+
+<div class="actions">
+
+<button
+class="green"
+onclick="calculate()">
+
+احسب
+
+</button>
+
+<button
+class="gray"
+onclick="window.print()">
+
+🖨️ طباعة النتيجة
+
+</button>
+
+</div>
+
+<div
+class="result"
+id="result">
+
+<table>
+
+<tr>
+
+<td>صافي الربح</td>
+
+<td id="net"></td>
+
+</tr>
+
+<tr>
+
+<td>إجمالي نصيب المزارعين</td>
+
+<td id="farmerShare"></td>
+
+</tr>
+<tr>
+
+<td>تفاصيل المزارعين</td>
+
+<td id="farmerDetails"></td>
+
+</tr>
+
+<tr>
+
+<td>المتبقي للشركاء</td>
+
+<td id="remain"></td>
+
+</tr>
+
+<tr>
+
+<td>نصيب كل ولد</td>
+
+<td id="boyShare"></td>
+
+</tr>
+
+<tr>
+
+<td>نصيب كل بنت</td>
+
+<td id="girlShare"></td>
+
+</tr>
+
+</table>
+
+</div>
+
+<div class="footer">
+
+تصميم عبدالرحمن الشغبي © 2026
+
+</div>
+
+</div>
+
+<script>let farmerCount = 1;
+
+function addFarmer(){
+
+farmerCount = document.querySelectorAll(".farmer").length + 1;
+
+let box = document.createElement("div");
+
+box.className = "farmer";
+
+box.innerHTML = `
+
+<label>
+
+المزارع ${farmerCount}
+
+</label>
+
+<div class="row">
+
+<input
+
+class="percent"
+
+placeholder="النسبة (50% أو 1/2 أو 0.5)">
+
+<input
+
+class="fixed"
+
+placeholder="مبلغ ثابت (اختياري)">
+
+</div>
+
+<div style="margin-top:10px;">
+
+<button
+
+class="red"
+
+onclick="removeFarmer(this)">
+
+➖ حذف المزارع
+
+</button>
+
+</div>
+
+`;
+
+document.getElementById("farmers").appendChild(box);
+
+}
+
+function removeFarmer(button){
+
+button.closest(".farmer").remove();
+
+}
+
+function evaluateExpression(expression){
+
+if(expression==null) return 0;
+
+expression = expression.trim();
+
+if(expression=="") return 0;
+
+expression = expression.replace(/\s+/g,"");
+
+expression = expression.replace(/(\d+)\s*\/\s*(\d+)/g,"($1/$2)");
+
+expression = expression.replace(/(\d+(\.\d+)?)%/g,"($1/100)");
+
+if(!/^[0-9+\-*/().]+$/.test(expression)){
+
+return NaN;
+
+}
+
+try{
+
+return Function("return ("+expression+")")();
+
+}
+
+catch{
+
+return NaN;
+
+}
+
+}
+
+function formatMoney(number){
+
+return Number(number).toLocaleString("ar-EG",{
+
+minimumFractionDigits:2,
+
+maximumFractionDigits:2
+
+});
+
+}function calculate(){
+
+let profit = evaluateExpression(
+
+document.getElementById("profit").value
+
+);
+
+let expenses = evaluateExpression(
+
+document.getElementById("expenses").value
+
+);
+
+let boys = Number(
+
+document.getElementById("boys").value
+
+);
+
+let girls = Number(
+
+document.getElementById("girls").value
+
+);
+
+if(
+
+isNaN(profit) ||
+
+isNaN(expenses) ||
+
+isNaN(boys) ||
+
+isNaN(girls)
+
+){
+
+alert("يرجى إدخال البيانات بصورة صحيحة");
+
+return;
+
+}
+
+let net = profit - expenses;
+
+let farmerShare = 0;
+let farmerDetails = "";
+
+let farmers = document.querySelectorAll(".farmer");
+
+let index = 1;
+
+for(let farmer of farmers){
+
+let percent = evaluateExpression(
+
+farmer.querySelector(".percent").value
+
+);
+
+let fixed = evaluateExpression(
+
+farmer.querySelector(".fixed").value
+
+);
+
+if(isNaN(percent) || isNaN(fixed)){
+
+alert("يوجد خطأ في بيانات أحد المزارعين");
+
+return;
+
+}
+
+let share = (net * percent) + fixed;
+
+farmerShare += share;
+
+farmerDetails +=
+"المزارع " + index +
+" : " +
+formatMoney(share) +
+" جنيه<br>";
+
+index++;
+
+}
+
+let remain = net - farmerShare;
+
+if(remain < 0){
+
+alert("إجمالي نصيب المزارعين أكبر من صافي الربح");
+
+return;
+
+}
+
+let totalShares = (boys * 2) + girls;
+
+if(totalShares <= 0){
+
+alert("يجب إدخال ولد أو بنت على الأقل");
+
+return;
+
+}
+
+let shareValue = remain / totalShares;
+
+let boyShare = shareValue * 2;
+
+let girlShare = shareValue;document.getElementById("net").innerHTML =
+formatMoney(net)+" جنيه";
+
+document.getElementById("farmerShare").innerHTML =
+formatMoney(farmerShare)+" جنيه";
+document.getElementById("farmerDetails").innerHTML =
+farmerDetails;
+
+document.getElementById("remain").innerHTML =
+formatMoney(remain)+" جنيه";
+
+document.getElementById("boyShare").innerHTML =
+formatMoney(boyShare)+" جنيه";
+
+document.getElementById("girlShare").innerHTML =
+formatMoney(girlShare)+" جنيه";
+
+document.getElementById("result").style.display="block";
+
+window.scrollTo({
+
+top:document.body.scrollHeight,
+
+behavior:"smooth"
+
+});
+
+}document.querySelectorAll("input").forEach(function(input){
+
+input.addEventListener("keydown",function(event){
+
+if(event.key==="Enter"){
+
+calculate();
+
+}
+
+});
+
+});
+
+window.onbeforeprint=function(){
+
+document.title="نتيجة تقسيم الأرباح الزراعية";
+
+}
+
+window.onafterprint=function(){
+
+document.title="حاسبة تقسيم الأرباح الزراعية";
+
+}
+
+const style=document.createElement("style");
+
+style.innerHTML=`
+
+@media print{
+
+body{
+
+background:white !important;
+
+padding:0;
+
+}
+
+.container{
+
+box-shadow:none;
+
+border:none;
+
+width:100%;
+
+max-width:100%;
+
+}
+
+button{
+
+display:none !important;
+
+}
+
+input{
+
+display:none !important;
+
+}
+
+label{
+
+display:none !important;
+
+}
+
+#farmers{
+
+display:none !important;
+
+}
+
+.footer{
+
+margin-top:30px;
+
+font-size:16px;
+
+font-weight:bold;
+
+}
+
+.result{
+
+display:block !important;
+
+background:white;
+
+margin-top:20px;
+
+}
+
+table{
+
+width:100%;
+
+border-collapse:collapse;
+
+}
+
+td{
+
+border:1px solid black;
+
+padding:10px;
+
+font-size:18px;
+
+}
+
+}
+
+`;
+
+document.head.appendChild(style);function clearAll(){
+
+if(!confirm("هل تريد مسح جميع البيانات؟")) return;
+
+document.querySelectorAll("input").forEach(function(input){
+
+input.value="";
+
+});
+
+document.getElementById("result").style.display="none";
+
+document.getElementById("farmers").innerHTML=`
+
+<div class="farmer">
+
+<label>المزارع الأول</label>
+
+<div class="row">
+
+<input
+class="percent"
+placeholder="النسبة (50% أو 1/2 أو 0.5)">
+
+<input
+class="fixed"
+placeholder="مبلغ ثابت (اختياري)">
+
+</div>
+
+</div>
+
+`;
+
+farmerCount = document.querySelectorAll(".farmer").length + 1;
+
+}function getCurrentDateTime(){
+
+let now = new Date();
+
+let date = now.toLocaleDateString("ar-EG");
+
+let time = now.toLocaleTimeString("ar-EG");
+
+return date + " - " + time;
+
+}document.addEventListener("keydown",function(event){
+
+if(event.key==="Enter"){
+
+let tag=document.activeElement.tagName;
+
+if(tag==="INPUT"){
+
+event.preventDefault();
+
+calculate();
+
+}
+
+}
+
+});
+
+function activateInputs(){
+
+document.querySelectorAll("input").forEach(function(input){
+
+input.onfocus=function(){
+
+this.select();
+
+};
+
+});
+
+}
+
+activateInputs();
+
+const observer=new MutationObserver(function(){
+
+activateInputs();
+
+});
+
+observer.observe(
+
+document.getElementById("farmers"),
+
+{
+
+childList:true,
+
+subtree:true
+
+}
+
+);// تحسين بسيط عند فتح الصفحة
+window.onload = function(){
+
+activateInputs();
+
+}
+
+// منع ظهور أرقام سالبة في النتائج
+function safeNumber(value){
+
+return value < 0 ? 0 : value;
+
+}
+
+// تحسين عرض النتائج
+document.getElementById("net").style.fontWeight="bold";
+document.getElementById("farmerShare").style.fontWeight="bold";
+document.getElementById("remain").style.fontWeight="bold";
+document.getElementById("boyShare").style.fontWeight="bold";
+document.getElementById("girlShare").style.fontWeight="bold";
+
+</script>
+
+</body>
+
+</html>
